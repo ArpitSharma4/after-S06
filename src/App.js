@@ -1,7 +1,25 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+
+
 import supabase from './supabase';
 
 import './style.css';
+
+function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const created = new Date(timestamp);
+  const seconds = Math.floor((now - created) / 1000);
+
+  if (seconds < 60) return `${seconds}s ago`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+
+  return created.toLocaleDateString(); // fallback to date
+}
+
 
 const initialFacts = [
   {
@@ -306,6 +324,10 @@ function Fact({ fact, setFacts }) {
           (Source)
         </a>
       </p>
+
+      {/* 🕒 Time Display */}
+      <p className="fact-time">🕒 {formatTimeAgo(fact.created_at)}</p>
+
       <span
         className='tag'
         style={{
@@ -315,13 +337,17 @@ function Fact({ fact, setFacts }) {
       >
         {fact.category}
       </span>
+
       <div className='vote-buttons'>
-        <button
+        <motion.button
           onClick={() => handleVote('votesInteresting')}
           disabled={isUpdating}
+          whileTap={{ scale: 1.3 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
           👍 {fact.votesInteresting}
-        </button>
+        </motion.button>
+
         <button
           onClick={() => handleVote('votesMindblowing')}
           disabled={isUpdating}
@@ -335,5 +361,6 @@ function Fact({ fact, setFacts }) {
     </li>
   );
 }
+
 
 export default App;
